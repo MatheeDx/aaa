@@ -1,0 +1,94 @@
+#include <tchar.h>
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+
+using namespace std;
+int _tmain()
+{
+    setlocale(LC_ALL, "rus");
+    double* a = NULL, * b = NULL, ** sum = NULL;
+    const int N = 27;
+
+    //Ввод точек ф-ии
+    double  x[N] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 },
+        y[N] = { 22, 22.41, 21.86, 21.15, 19.78, 19.05, 19.06, 16.11, 17.3, 15.03, 12.5, 12.41, 10.46, 7.35, 5.88, 4.15, 0.26, -2.89, -6, -8.97, -11.3, -13.49, -16.44, -20.95, -25.92, -29.45, -32.14 };
+    int K, i, j, k, m;
+    K = 2;
+    double z, c;
+    b = new double[K + 1];
+    a = new double[K + 1];
+    sum = new double* [K + 1];
+    for (int i = 0; i < K + 1; i++)
+        sum[i] = new double[K + 1];
+
+
+
+    for (i = 0; i < K + 1; i++)
+    {
+        for (j = 0; j < K + 1; j++)
+        {
+            sum[i][j] = 0;
+            for (k = 0; k < N; k++)
+            {
+                sum[i][j] += pow(x[k], i + j);
+            }
+        }
+    }
+    for (i = 0; i < K + 1; i++)
+    {
+        b[i] = 0;
+        for (k = 0; k < N; k++)
+        {
+            b[i] += pow(x[k], i) * y[k];
+        }
+    }
+
+    for (int i = 0; i < K; i++)
+    {
+        m = i;
+        for (int j = i + 1; j < K + 1; j++)
+        {
+            if (fabs(sum[m][i]) < fabs(sum[j][i]))
+                m = j;
+        }
+        for (int k = i; k < K + 1; k++)
+        {
+            z = sum[m][k];
+            sum[m][k] = sum[i][k];
+            sum[i][k] = z;
+        }
+        z = b[m];  b[m] = b[i];  b[i] = z;
+
+        for (int j = i + 1; j < K + 1; j++)
+        {
+            c = -sum[j][i] / sum[i][i];
+            for (int k = i; k < K + 1; k++)
+            {
+                sum[j][k] = sum[j][k] + c * sum[i][k];
+            }
+            b[j] = b[j] + c * b[i];
+        }
+    }
+
+    a[K] = b[K] / sum[K][K];
+
+    for (int i = K + 1 - 2; i >= 0; i--)
+    {
+        for (int k = i + 1; k < K + 1; k++)
+        {
+            b[i] = b[i] - a[k] * sum[i][k];
+        }
+        a[i] = b[i] / sum[i][i];
+    }
+
+
+    //Результаты проги:
+    //  X2 - a
+    //  X1 - b
+    //  X0 - c
+    for (int i = 0; i < K + 1; i++)
+        cout << "X" << i << " = " << a[i] << endl;
+
+    system("Pause");
+}
